@@ -153,43 +153,58 @@ class Repository {
 				cout << "Error during status check: " << e.what() << endl;
 			}
 		}
-
-	private:
-		bool compareFiles(const fs::path& file1, const fs::path& file2) {
-			ifstream f1(file1, ios::binary);
-			ifstream f2(file2, ios::binary);
-
-			if (!f1 || !f2) {
-				return false; // Error opening files
+		void log() {
+			for (const auto& entry : fs::directory_iterator(".myvcs/AllCommithistory")) {
+				if (fs::is_regular_file(entry)) {
+					string logFile = entry.path().string();
+					ifstream f(logFile);
+					string line;
+					while(getline(f,line)){
+						cout << line<<endl;
+					}
+					cout<<"\n---------------"<<endl;
+				}
 			}
-
-			return equal(istreambuf_iterator<char>(f1), istreambuf_iterator<char>(), istreambuf_iterator<char>(f2));
 		}
-};
+private:
+				bool compareFiles(const fs::path& file1, const fs::path& file2) {
+					ifstream f1(file1, ios::binary);
+					ifstream f2(file2, ios::binary);
 
-int main() {
-	Repository Repo;
-	while (true) {
-		string command, filename;
-		cout << "Enter command (init, add <filename>, commit, status, exit): ";
-		cin >> command;
+					if (!f1 || !f2) {
+						return false; // Error opening files
+					}
 
-		if (command == "init") {
-			Repo.init();
-		} else if (command == "add") {
-			cin >> filename;
-			Repo.add(filename);
-		} else if (command == "commit") {
-			Repo.commit();
-		} else if (command == "status") {
-			Repo.status();
-		} else if (command == "exit") {
-			cout << "Exiting...\n";
-			break;
-		} else {
-			cout << "Unknown command.\n";
-		}
-	}
+					return equal(istreambuf_iterator<char>(f1), istreambuf_iterator<char>(), istreambuf_iterator<char>(f2));
+				}
+			};
 
-	return 0;
-}
+			int main() {
+				Repository Repo;
+				while (true) {
+					string command, filename;
+					cout << "Enter command (init, add <filename>, commit, status,log, exit): ";
+					cin >> command;
+
+					if (command == "init") {
+						Repo.init();
+					} else if (command == "add") {
+						cin >> filename;
+						Repo.add(filename);
+					} else if (command == "commit") {
+						Repo.commit();
+					} else if (command == "status") {
+						Repo.status();
+					} 
+					else if(command == "log"){
+						Repo.log();
+					}else if (command == "exit") {
+						cout << "Exiting...\n";
+						break;
+					} else {
+						cout << "Unknown command.\n";
+					}
+				}
+
+				return 0;
+			}
